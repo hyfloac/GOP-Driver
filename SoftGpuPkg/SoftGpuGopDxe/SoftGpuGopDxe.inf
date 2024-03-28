@@ -1,0 +1,51 @@
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = SoftGpuGopDxe
+  FILE_GUID                      = 8c725967-f553-4cb3-a48e-39c6ba7000c3
+  MODULE_TYPE                    = UEFI_DRIVER
+  VERSION_STRING                 = 1.0
+  EDK_RELEASE_VERSION            = 0x00020000
+  EFI_SPECIFICATION_VERSION      = 0x00020000
+
+  ENTRY_POINT                    = InitializeSoftGpuGop
+
+  PCI_VENDOR_ID  = 0xFFFD
+  PCI_DEVICE_ID  = 0x0001
+  PCI_CLASS_CODE = 0x030001
+  PCI_REVISION   = 0x01
+  COMPRESS       = TRUE
+
+[Sources.common]
+  ComponentName.c
+  DriverSupportedEfiVersion.c
+  Edid.c
+  SoftGpuGop.c
+  SoftGpuGraphicsOutputProtocol.c
+  VirtualBoxDebugLog.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  SoftGpuPkg/SoftGpuPkg.dec
+
+[LibraryClasses]
+  UefiBootServicesTableLib
+  MemoryAllocationLib
+  UefiLib
+  UefiDriverEntryPoint
+  DebugLib
+  BaseMemoryLib
+  DevicePathLib
+
+[Protocols]
+  gEfiDriverSupportedEfiVersionProtocolGuid     # PROTOCOL ALWAYS_PRODUCED
+  gEfiGraphicsOutputProtocolGuid                # PROTOCOL BY_START
+  gEfiEdidDiscoveredProtocolGuid                # PROTOCOL BY_START
+  gEfiEdidActiveProtocolGuid                    # PROTOCOL BY_START
+  gEfiDevicePathProtocolGuid                    # PROTOCOL BY_START
+  gEfiPciIoProtocolGuid                         # PROTOCOL TO_START
+  gEfiEdidOverrideProtocolGuid                  # PROTOCOL TO_START
+
+[Pcd]
+  #gEfiMdeModulePkgTokenSpaceGuid.PcdVideoHorizontalResolution  ## PRODUCES
+  #gEfiMdeModulePkgTokenSpaceGuid.PcdVideoVerticalResolution    ## PRODUCES

@@ -1,0 +1,6 @@
+[Defines]
+  DEC_SPECIFICATION = 0x00010005
+  PACKAGE_NAME      = SoftGpuPkg
+  PACKAGE_GUID      = 656abca7-1202-4eb0-9e86-5e287cc309d9
+  PACKAGE_VERSION   = 0.1
+
