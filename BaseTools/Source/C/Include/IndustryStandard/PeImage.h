@@ -16,6 +16,7 @@
 #ifndef __PE_IMAGE_H__
 #define __PE_IMAGE_H__
 
+#define RUNTIME_FUNCTION RUNTIME_FUNCTION0
 //
 // PE32+ Subsystem type for EFI images
 //

@@ -21,6 +21,7 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 #include <ctype.h>
 
 #include <Common/UefiBaseTypes.h>
+#define RUNTIME_FUNCTION RUNTIME_FUNCTION0
 #include <IndustryStandard/PeImage.h>
 #include <Common/UefiInternalFormRepresentation.h>
 
