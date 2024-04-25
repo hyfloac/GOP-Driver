@@ -40,12 +40,12 @@
 #define SOFT_GPU_DEVICE_ID (0x0001)
 
 typedef struct {
-  UINT32 ModeNumber;
-  UINT32 HorizontalResolution;
-  UINT32 VerticalResolution;
-  UINT32 ColorDepth;
-  UINT32 RefreshRate;
-} SOFT_GPU_VGA_DATA;
+    UINT32 ModeNumber;
+    UINT32 HorizontalResolution;
+    UINT32 VerticalResolution;
+    UINT32 ColorDepth;
+    UINT32 RefreshRate;
+} SOFT_GPU_VGA_MODE_DATA;
 
 #define GRAPHICS_OUTPUT_INVALID_MODE_NUMBER 0xffff
 
@@ -63,17 +63,34 @@ typedef struct
     EFI_EDID_ACTIVE_PROTOCOL             EdidActive;
     UINTN                                CurrentMode;
     UINTN                                MaxMode;
-    SOFT_GPU_VGA_DATA                    *ModeData;
+    SOFT_GPU_VGA_MODE_DATA*              ModeData;
     BOOLEAN                              NeedsStart;
     UINT8                                BarIndexFrameBuffer;
     UINT16                               DeviceType;
+    UINT64                               VRAMSize;
 } SOFT_GPU_PRIVATE_DATA;
 
+///
+/// Video Mode structure
+///
+typedef struct {
+    UINT32  Width;
+    UINT32  Height;
+    UINT32  ColorDepth;
+    UINT32  RefreshRate;
+    /// CRTC settings are optional. If NULL then VBE is used
+    UINT8   *CrtcSettings;
+    /// Sequencer settings are optional. If NULL then defaults are used
+    UINT8   *SeqSettings;
+    UINT8   MiscSetting;
+} SOFT_GPU_VGA_VIDEO_MODES;
 
 #define SOFT_GPU_PRIVATE_DATA_SIGNATURE  SIGNATURE_32 ('s', 'g', 'o', 'p')
 #define SOFT_GPU_PRIVATE_FROM_THIS(a) \
   CR(a, SOFT_GPU_PRIVATE_DATA, GraphicsOutput, SOFT_GPU_PRIVATE_DATA_SIGNATURE)
   
+extern SOFT_GPU_VGA_VIDEO_MODES                   gSoftGpuGopVideoModes[];
+extern const UINT32                               gSoftGpuGopVideoModeCount;
 extern EFI_COMPONENT_NAME_PROTOCOL                gSoftGpuGopComponentName;
 extern EFI_COMPONENT_NAME2_PROTOCOL               gSoftGpuGopComponentName2;
 extern EFI_DRIVER_BINDING_PROTOCOL                gSoftGpuGopDriverBinding;

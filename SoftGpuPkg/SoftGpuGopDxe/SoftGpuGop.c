@@ -242,6 +242,8 @@ SoftGpuGopDriverBindingStart(
         goto FreeMemory;
     }
     
+    Private->PciIo = PciIo;
+
     //
     // Read the PCI Configuration Header from the PCI Device again to figure out the model.
     //
@@ -354,6 +356,21 @@ SoftGpuGopDriverBindingStart(
         );
     }
 
+    const volatile UINT8* SoftGpuBar0 = (volatile UINT8*) (UINTN) (Pci.Device.Bar[0] & ~0x7);
+
+    Private->BarIndexFrameBuffer = 1;
+    const UINT32 VRAMSizeLow = *(volatile UINT32*) (SoftGpuBar0 + 0x0014);
+    const UINT32 VRAMSizeHigh = *(volatile UINT32*) (SoftGpuBar0 + 0x0018);
+    Private->VRAMSize = (((UINT64) VRAMSizeHigh) << 32) | (UINT64) VRAMSizeLow;
+
+    DbgPrint((DEBUG_INFO, "[%a]: %a:%d VRAM Size: 0x%llX\n", gEfiCallerBaseName, __FILE__, __LINE__, Private->VRAMSize));
+
+    Status = SoftGpuVideoModeSetup(Private);
+    if(EFI_ERROR(Status))
+    {
+        goto RestorePciAttributes;
+    }
+
     if(!Private->DevicePath)
     {
         //
@@ -364,12 +381,10 @@ SoftGpuGopDriverBindingStart(
     }
     else
     {
-        const volatile UINT8* SoftGpuBar0 = (volatile UINT8*) (UINTN) (Pci.Device.Bar[0] & ~0x7);
+        // const UINT32 DisplayWidth = *(volatile UINT32*) (SoftGpuBar0 + 0x2000);
+        // const UINT32 DisplayHeight = *(volatile UINT32*) (SoftGpuBar0 + 0x2004);
 
-        const UINT32 DisplayWidth = *(volatile UINT32*) (SoftGpuBar0 + 0x2000);
-        const UINT32 DisplayHeight = *(volatile UINT32*) (SoftGpuBar0 + 0x2004);
-
-        DbgPrint((DEBUG_INFO, "[%a]: %a:%d Display: %dx%d\n", gEfiCallerBaseName, __FILE__, __LINE__, DisplayWidth, DisplayHeight));
+        // DbgPrint((DEBUG_INFO, "[%a]: %a:%d Display: %dx%d\n", gEfiCallerBaseName, __FILE__, __LINE__, DisplayWidth, DisplayHeight));
 
         Status = SoftGpuGopConstructor(Private);
 
@@ -456,6 +471,8 @@ CloseProtocols:
             This->DriverBindingHandle,
             Controller
         );
+
+        Private->PciIo = NULL;
     }
 
 FreeMemory:
