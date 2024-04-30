@@ -48,11 +48,13 @@ SoftGpuGopQueryMode(
 }
 
 static UINT16 BASE_REGISTER_DI            = 0x2000;
-static UINT16 SIZE_REGISTER_DI            = 4 * 0x4;
+static UINT16 SIZE_REGISTER_DI            = 6 * 0x4;
 static UINT16 OFFSET_REGISTER_DI_WIDTH    = 0x00;
 static UINT16 OFFSET_REGISTER_DI_HEIGHT   = 0x04;
 static UINT16 OFFSET_REGISTER_DI_BPP      = 0x08;
 static UINT16 OFFSET_REGISTER_DI_ENABLE   = 0x0C;
+static UINT16 OFFSET_REGISTER_DI_REFRESH_RATE_NUMERATOR   = 0x10;
+static UINT16 OFFSET_REGISTER_DI_REFRESH_RATE_DENOMINATOR = 0x14;
 
 EFI_STATUS
 EFIAPI
@@ -103,7 +105,7 @@ SoftGpuGopSetMode(
 
     if(EFI_ERROR(Status))
     {
-        DbgPrint((DEBUG_INFO, "[%a]: %a:%d Failed to set width %d for display 0. %r\n", gEfiCallerBaseName, __FILE__, __LINE__, ModeData->HorizontalResolution, Status));
+        DbgPrint((DEBUG_INFO, "[%a]: %a:%d Failed to set width %d for display 0. %r\n", gEfiCallerBaseName, __FILE__, __LINE__, Value, Status));
         return EFI_DEVICE_ERROR;
     }
 
@@ -120,7 +122,41 @@ SoftGpuGopSetMode(
 
     if(EFI_ERROR(Status))
     {
-        DbgPrint((DEBUG_INFO, "[%a]: %a:%d Failed to set height %d for display 0. %r\n", gEfiCallerBaseName, __FILE__, __LINE__, ModeData->HorizontalResolution, Status));
+        DbgPrint((DEBUG_INFO, "[%a]: %a:%d Failed to set height %d for display 0. %r\n", gEfiCallerBaseName, __FILE__, __LINE__, Value, Status));
+        return EFI_DEVICE_ERROR;
+    }
+
+    Value = ModeData->RefreshRate;
+
+    Status = Private->PciIo->Mem.Write(
+        Private->PciIo,
+        EfiPciIoWidthUint32,
+        0,
+        BASE_REGISTER_DI + SIZE_REGISTER_DI * 0 + OFFSET_REGISTER_DI_REFRESH_RATE_NUMERATOR,
+        1,
+        &Value
+    );
+
+    if(EFI_ERROR(Status))
+    {
+        DbgPrint((DEBUG_INFO, "[%a]: %a:%d Failed to set Refresh Rate Numerator %d for display 0. %r\n", gEfiCallerBaseName, __FILE__, __LINE__, Value, Status));
+        return EFI_DEVICE_ERROR;
+    }
+
+    Value = 1;
+
+    Status = Private->PciIo->Mem.Write(
+        Private->PciIo,
+        EfiPciIoWidthUint32,
+        0,
+        BASE_REGISTER_DI + SIZE_REGISTER_DI * 0 + OFFSET_REGISTER_DI_REFRESH_RATE_DENOMINATOR,
+        1,
+        &Value
+    );
+
+    if(EFI_ERROR(Status))
+    {
+        DbgPrint((DEBUG_INFO, "[%a]: %a:%d Failed to set Refresh Rate Denominator %d for display 0. %r\n", gEfiCallerBaseName, __FILE__, __LINE__, Value, Status));
         return EFI_DEVICE_ERROR;
     }
 
